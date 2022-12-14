@@ -1,0 +1,71 @@
+version: "2.2"
+services:
+  discovery:
+    image: discovery
+    ports:
+      - "8761:8761"
+    hostname: discovery
+    networks:
+      - ms-network
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
+
+  api-gateway:
+    image: api-gateway
+    ports:
+      - "8099:8099"
+    depends_on:
+      discovery:
+        condition: service_started
+    hostname: gateway
+    networks:
+      - ms-network
+    environment:
+      - server.port=8099
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
+
+  common:
+    image: common
+    ports:
+      - "8090:8090"
+    depends_on:
+      discovery:
+        condition: service_started
+    hostname: common
+    networks:
+      - ms-network
+    environment:
+      - server.port=8090
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
+
+  one:
+    image: one
+    ports:
+      - "8991:8991"
+    depends_on:
+      discovery:
+        condition: service_started
+    hostname: one
+    networks:
+      - ms-network
+    environment:
+      - server.port=8991
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
+
+  two:
+    image: one
+    ports:
+      - "8992:8992"
+    depends_on:
+      discovery:
+        condition: service_started
+    hostname: two
+    networks:
+      - ms-network
+    environment:
+      - server.port=8992
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
+
+networks:
+  ms-network:
+    driver: bridge
